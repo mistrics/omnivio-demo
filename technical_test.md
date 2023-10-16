@@ -1,4 +1,4 @@
-# I am submitting a detailed report of possible metrics that we can use for reporting in a ecommerce businesss.
+# Here is a detailed report of possible metrics that we can use for reporting in an ecommerce sales data.
 
 Dataset columns:
 - order_id
