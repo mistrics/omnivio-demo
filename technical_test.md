@@ -134,20 +134,8 @@ where rank <= 2
 
 
 # Question: Enhance the data set with calculated fields for discounts, also prices with and without discount.
-```
-    select *, 
-    (unit_price*discount*.01*quantity) as total_discount_amount,
-    (unit_price*discount*.01) as discount_per_item,
-    (unit_price*quantity - (unit_price*discount*.01*quantity)) as total_price_after_discount,
-    (unit_price - (unit_price*discount*.01)) as discounted_unit_price
-    from sales_data
-```    
 
-
-## ETL or ELT is all about extracting the data from sources.
-## loading that into the warehouse/delta lake 
-## and tranform/enhance/enrich the data
-## Our sales data is very raw and we have to enhance it with some precalculated fields to consider discounts so that we can find correct revenues, based on category, dates etc.
+Our sales data is very raw and we have to enhance it with some precalculated fields to consider discounts so that we can find correct revenues, based on category, dates etc.
 
 ```
 -- Here is the function that will be used to better calculations considering discounted prices.
