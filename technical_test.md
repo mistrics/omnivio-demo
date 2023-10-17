@@ -193,6 +193,9 @@ FROM (
     GROUP BY order_id
 ) order_values
 ```
+|avg_order_value|avg_order_value_after_discount|
+|----|----|
+|1485.67|1332.90|
 
 ## Question: What is the average oder value (before and after discount) of each category?
 
@@ -205,7 +208,16 @@ from enhanced_sales_data()
 GROUP BY category
 ORDER BY category ASC
 ```
-
+|category|avg_order_value_BD|avg_order_value_AD|
+|--|--|--|
+|Automotive|1634.68|1471.10|
+|Beauty|1463.16|1306.40|
+|Books|1538.31|1375.59|
+|Clothing|1436.06|1278.28|
+|Electronics|1413.05|1282.09|
+|Home|1328.38|1187.35|
+|Sports|1523.40|1364.92|
+|Toys|1552.52|1399.96|
 
 
 
