@@ -142,3 +142,82 @@ where rank <= 2
     (unit_price - (unit_price*discount*.01)) as discounted_unit_price
     from sales_data
 ```    
+
+
+## ETL or ELT is all about extracting the data from sources.
+## loading that into the warehouse/delta lake 
+## and tranform/enhance/enrich the data
+## Our sales data is very raw and we have to enhance it with some precalculated fields to consider discounts so that we can find correct revenues, based on category, dates etc.
+
+```
+-- Here is the function that will be used to better calculations considering discounted prices.
+
+CREATE OR REPLACE FUNCTION public.enhanced_sales_data()
+RETURNS TABLE (
+    order_id integer,
+    product_name TEXT,
+    category TEXT,
+    order_date TIMESTAMP,
+    ship_date TIMESTAMP,
+    review_score integer,
+    unit_price FLOAT,
+    quantity BIGINT,
+    order_value_before_discount FLOAT,
+    order_value_after_discount FLOAT,
+    value_per_unit_after_discount FLOAT,
+    discount_per_item FLOAT,
+    total_discount_value FLOAT
+)
+AS 
+$body$
+    select 
+    order_id,
+    product_name, category, 
+    order_date::TIMESTAMP, 
+    ship_date::TIMESTAMP, 
+    review_score, 
+    unit_price,
+    quantity,
+    ROUND((unit_price*quantity)::Decimal, 2) as order_value_before_discount,
+    ROUND((unit_price*quantity - (unit_price*discount*.01*quantity))::Decimal, 2) as order_value_after_discount,
+    ROUND((unit_price - (unit_price*discount*.01))::Decimal, 2) as value_per_unit_after_discount,
+    ROUND((unit_price*discount*.01)::Decimal, 2) as discount_per_item, 
+    ROUND((unit_price*discount*.01*quantity)::Decimal, 2) as total_discount_value
+    from sales_data
+$body$
+LANGUAGE SQL;
+```
+
+
+
+# Lets find some more metric data
+
+## Question: What is the average order value before and after discount.
+
+```
+SELECT ROUND(AVG(order_value)::Decimal, 2) as avg_order_value, ROUND(AVG(order_value_after_discount)::Decimal, 2) as avg_order_value_after_discount
+FROM (
+    select 
+    order_id, 
+    ROUND(sum(order_value_before_discount)::Decimal, 2) as order_value, 
+    ROUND(sum(order_value_after_discount)::Decimal, 2) as order_value_after_discount
+    from enhanced_sales_data()
+    GROUP BY order_id
+) order_values
+```
+
+## Question: What is the average oder value (before and after discount) of each category?
+
+```
+select 
+category, 
+ROUND(AVG(order_value_before_discount)::Decimal, 2) as avg_order_value_before_discount,
+ROUND(AVG(order_value_after_discount)::Decimal, 2) as avg_order_value_after_discount
+from enhanced_sales_data()
+GROUP BY category
+ORDER BY category ASC
+```
+
+
+
+
